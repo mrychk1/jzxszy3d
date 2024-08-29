@@ -1,96 +1,122 @@
 {
-	"type": "FeatureCollection",
-	"features": [
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 1"
-			},
-			"geometry": {
-				"coordinates": [102.02652446180588, 35.942307999810694],
-				"type": "Point"
-			}
-		},
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 2"
-			},
-			"geometry": {
-				"coordinates": [102.03980416140291, 35.94769116449801],
-				"type": "Point"
-			}
-		},
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 3"
-			},
-			"geometry": {
-				"coordinates": [102.08639368874339, 35.949604697491665],
-				"type": "Point"
-			}
-		},
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 4"
-			},
-			"geometry": {
-				"coordinates": [102.05576905677589, 35.95828150500262],
-				"type": "Point"
-			}
-		},
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 5"
-			},
-			"geometry": {
-				"coordinates": [102.06895026697924, 35.9598505792308],
-				"type": "Point"
-			}
-		},
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 6"
-			},
-			"geometry": {
-				"coordinates": [102.06415984359785, 35.929933272736704],
-				"type": "Point"
-			}
-		},
-
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 11"
-			},
-			"geometry": {
-				"coordinates": [102.05899758427182, 35.94875361709161],
-				"type": "Point"
-			}
-		},
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 12"
-			},
-			"geometry": {
-				"coordinates": [102.03163312970503, 35.931213423677335],
-				"type": "Point"
-			}
-		},
-		{
-			"type": "Feature",
-			"properties": {
-				"name": "Point 13"
-			},
-			"geometry": {
-				"coordinates": [102.02474279210867, 35.95443370919942],
-				"type": "Point"
-			}
-		}
-	]
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 1",
+                "description": "This is point 1",
+                "elevation": 1500,
+                "category": "A"
+            },
+            "geometry": {
+                "coordinates": [102.02652446180588, 35.942307999810694],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 2",
+                "description": "This is point 2",
+                "elevation": 1520,
+                "category": "B"
+            },
+            "geometry": {
+                "coordinates": [102.03980416140291, 35.94769116449801],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 3",
+                "description": "This is point 3",
+                "elevation": 1540,
+                "category": "A"
+            },
+            "geometry": {
+                "coordinates": [102.08639368874339, 35.949604697491665],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 4",
+                "description": "This is point 4",
+                "elevation": 1560,
+                "category": "C"
+            },
+            "geometry": {
+                "coordinates": [102.05576905677589, 35.95828150500262],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 5",
+                "description": "This is point 5",
+                "elevation": 1580,
+                "category": "B"
+            },
+            "geometry": {
+                "coordinates": [102.06895026697924, 35.9598505792308],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 6",
+                "description": "This is point 6",
+                "elevation": 1600,
+                "category": "A"
+            },
+            "geometry": {
+                "coordinates": [102.06415984359785, 35.929933272736704],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 11",
+                "description": "This is point 11",
+                "elevation": 1620,
+                "category": "C"
+            },
+            "geometry": {
+                "coordinates": [102.05899758427182, 35.94875361709161],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 12",
+                "description": "This is point 12",
+                "elevation": 1640,
+                "category": "B"
+            },
+            "geometry": {
+                "coordinates": [102.03163312970503, 35.931213423677335],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Point 13",
+                "description": "This is point 13",
+                "elevation": 1660,
+                "category": "A"
+            },
+            "geometry": {
+                "coordinates": [102.02474279210867, 35.95443370919942],
+                "type": "Point"
+            }
+        }
+    ]
 }

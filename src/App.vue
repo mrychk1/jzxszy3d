@@ -47,6 +47,7 @@
       </div>
     </transition>
     <div id="map" class="map-container"> </div>
+    <!-- 选中数据的表格信息 -->
   </div>
 </template>
 
@@ -55,61 +56,6 @@ import { onMounted } from 'vue'
 import * as mars3d from 'mars3d'
 // import proj4 from 'proj4'; // Import the proj4 library
 // import * as Cesium from 'cesium'; // Import the Cesium module
-
-// 拉框查询
-let selectGraphic: any[] = []
-// 画矩形
-async function drawRectangle() {
-  removeAllSelect()
-  const graphic = await map.graphicLayer.startDraw({
-    type: "rectangle",
-    style: {
-      color: "#ffff00",
-      opacity: 0.2,
-      clampToGround: true
-    }
-  })
-  updateSelect(graphic)
-}
-
-// 在范围内的改变图标为红色
-// 保存之前的graphic
-let graphicBeforeImage: any
-// 更新选中的图标
-function updateSelect(drawGraphic: any) {
-  graphicLayer.eachGraphic((graphic) => {
-    graphicBeforeImage = graphic.options.style.image
-    const position = graphic.positionShow
-    const isInArea = drawGraphic.isInPoly(position)
-    if (isInArea) {
-      // 改变原图层的图标
-      graphic.setStyle({
-        image: "../public/icon/选中.png",
-      })
-      selectGraphic.push(graphic)
-    }
-  })
-  // 打印选中的图标
-  console.log("selectGraphic", selectGraphic)
-}
-
-// 清除
-function removeAllSelect() {
-  map.graphicLayer.clear()
-
-  for (let i = 0; i < selectGraphic.length; i++) {
-    const graphic = selectGraphic[i]
-    graphic.setStyle({
-      image: graphicBeforeImage,
-    })
-  }
-  selectGraphic = []
-}
-
-
-
-
-
 let map: mars3d.Map
 let measure: mars3d.thing.Measure
 onMounted(async () => {
@@ -337,6 +283,56 @@ function addPointLayer(layerName: string) {
     // flyTo: true,
   });
   map.addLayer(graphicLayer);
+}
+
+// 拉框查询
+let selectGraphic: any[] = []
+// 画矩形
+async function drawRectangle() {
+  removeAllSelect()
+  const graphic = await map.graphicLayer.startDraw({
+    type: "rectangle",
+    style: {
+      color: "#ffff00",
+      opacity: 0.2,
+      clampToGround: true
+    }
+  })
+  updateSelect(graphic)
+}
+
+// 在范围内的改变图标为选中图标
+// 保存之前的graphic的图标
+let graphicBeforeImage: any
+// 更新选中的图标
+function updateSelect(drawGraphic: any) {
+  graphicLayer.eachGraphic((graphic) => {
+    graphicBeforeImage = graphic.options.style.image
+    const position = graphic.positionShow
+    const isInArea = drawGraphic.isInPoly(position)
+    if (isInArea) {
+      // 改变原图层的图标
+      graphic.setStyle({
+        image: "../public/icon/选中.png",
+      })
+      selectGraphic.push(graphic)
+    }
+  })
+  // 打印选中的图标
+  console.log("selectGraphic", selectGraphic)
+}
+
+// 清除选中
+function removeAllSelect() {
+  map.graphicLayer.clear()
+
+  for (let i = 0; i < selectGraphic.length; i++) {
+    const graphic = selectGraphic[i]
+    graphic.setStyle({
+      image: graphicBeforeImage,
+    })
+  }
+  selectGraphic = []
 }
 </script>
 
