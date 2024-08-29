@@ -11,33 +11,9 @@
     <transition name="slide-fade">
       <div v-if="showLayerList" class="list-container">
         <ul>
-          <li @click="toggleLayer('Rainfall')">
-            <img src="../public/icon/雨量站.png" alt="雨量站图标" class="icon" />
-            雨量站
-          </li>
-          <li @click="toggleLayer('WaterLevel')">
-            <img src="../public/icon/水位站.png" alt="水位站图标" class="icon" />
-            水位站
-          </li>
-          <li @click="toggleLayer('FlowRate')">
-            <img src="../public/icon/流量站.png" alt="流量站图标" class="icon" />
-            流量站
-          </li>
-          <li @click="toggleLayer('WaterQuality')">
-            <img src="../public/icon/引水工程水质站.png" alt="水质站图标" class="icon" />
-            水质站
-          </li>
-          <li @click="toggleLayer('Video')">
-            <img src="../public/icon/地质灾害预警.png" alt="地质站图标" class="icon" />
-            地质站
-          </li>
-          <li @click="toggleLayer('GeologicalDisaster')">
-            <img src="../public/icon/泥沙站.png" alt="泥沙站图标" class="icon" />
-            泥沙站
-          </li>
-          <li @click="toggleLayer('Sediment')">
-            <img src="../public/icon/取水口.png" alt="取水口图标" class="icon" />
-            取水口
+          <li v-for="layer in layers" :key="layer.name" @click="toggleLayer(layer.name)">
+            <img :src="layer.icon" :alt="layer.alt" class="icon" />
+            {{ layer.label }}
           </li>
         </ul>
       </div>
@@ -61,6 +37,12 @@
             <img src="../public/icon/清除.png" alt="清除" class="icon">
             清除
           </li>
+          <li @click="drawRectangle">
+            拉框查询
+          </li>
+          <li @click="removeAllSelect">
+            清除查询
+          </li>
         </ul>
       </div>
     </transition>
@@ -71,8 +53,77 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import * as mars3d from 'mars3d'
-import proj4 from 'proj4'; // Import the proj4 library
-import * as Cesium from 'cesium'; // Import the Cesium module
+// import proj4 from 'proj4'; // Import the proj4 library
+// import * as Cesium from 'cesium'; // Import the Cesium module
+
+// 拉框查询
+let selectGraphic: any[] = []
+// 画矩形
+async function drawRectangle() {
+  removeAllSelect()
+  const graphic = await map.graphicLayer.startDraw({
+    type: "rectangle",
+    style: {
+      color: "#ffff00",
+      opacity: 0.2,
+      clampToGround: true
+    }
+  })
+  updateSelect(graphic)
+}
+
+// 在范围内的改变图标为红色
+// 创建一个新的图层
+let newLayer = new mars3d.layer.GraphicLayer({
+  name: "selectLayer",
+  symbol: {
+    type: "billboard",
+    styleOptions: {
+      image: "../public/icon/选中.png",
+      scale: 0.1,
+      clampToGround: true
+    }
+  },
+  // popup: "{name}",
+  // tooltip: "{name}",
+  // flyTo: true,
+});
+function updateSelect(drawGraphic: any) {
+  graphicLayer.eachGraphic((graphic) => {
+    const position = graphic.positionShow
+    const isInArea = drawGraphic.isInPoly(position)
+    if (isInArea) {
+      // 改变原图层的图标
+      // graphic.setStyle({
+      //   image: "../public/icon/选中.png",
+      // })
+      selectGraphic.push(graphic)
+    }
+  })
+
+  // 将新的图层添加到地图中
+  map.addLayer(newLayer);
+
+  // 打印选中的图标
+  console.log("selectGraphic", selectGraphic)
+}
+
+// 清除
+function removeAllSelect() {
+  map.graphicLayer.clear()
+
+  for (let i = 0; i < selectGraphic.length; i++) {
+    const graphic = selectGraphic[i]
+    graphic.setStyle({
+    })
+  }
+  selectGraphic = []
+}
+
+
+
+
+
 let map: mars3d.Map
 let measure: mars3d.thing.Measure
 onMounted(async () => {
@@ -83,13 +134,10 @@ onMounted(async () => {
       center: { "lat": 35.918202, "lng": 101.850992, "alt": 62371.3, "heading": 358.5, "pitch": -90 },
     },
     control: {
-      // zoom: {
-      //   show: true,
-      // },
-      fullscreenButton: { fullscreenElement: "map" },
+      fullscreenButton: { fullscreenElement: "map" }, //全屏
     },
     terrain: {
-      url: 'http://data.mars3d.cn/terrain',
+      url: 'http://data.mars3d.cn/terrain', //mars3d自带地形
       show: true
     },
     basemaps: [
@@ -112,14 +160,14 @@ onMounted(async () => {
     ],
     effect: {
       bloom: {
-        enabled: true, // 是否开启泛光效果q
+        enabled: true, // 是否开启泛光效果
         threshold: 2, // 泛光亮度阈值
-        strength: 2, // 泛光强度
+        strength: 10, // 泛光强度
         radius: 2 // 泛光半径
       },
       brightness: {
         enabled: true, // 是否开启亮度调节
-        brightness: 1.5 // 亮度值
+        brightness: 1 // 亮度值
       }
     }
   })
@@ -131,9 +179,6 @@ onMounted(async () => {
 
   // 尖扎县边界墙
   addDemoGeoJsonLayer()
-
-  // 添加点图层
-  addPointLayer(pointLayer)
 })
 
 // 点图层数据
@@ -144,13 +189,21 @@ import WaterQuality from '../public/data/WaterQuality.json'
 import Video from '../public/data/Video.json'
 import GeologicalDisaster from '../public/data/GeologicalDisaster.json'
 import Sediment from '../public/data/Sediment.json'
-let pointLayer: mars3d.layer.GeoJsonLayer
-
 
 // 图层控制按钮
 import { ref } from 'vue'
+let graphicLayer: mars3d.layer.GeoJsonLayer
 const showLayerList = ref(false)
 const showMeasureList = ref(false)
+const layers = [
+  { name: 'Rainfall', icon: '../public/icon/雨量站.png', alt: '雨量站图标', label: '雨量站', data: Rainfall },
+  { name: 'WaterLevel', icon: '../public/icon/水位站.png', alt: '水位站图标', label: '水位站', data: WaterLevel },
+  { name: 'FlowRate', icon: '../public/icon/流量站.png', alt: '流量站图标', label: '流量站', data: FlowRate },
+  { name: 'WaterQuality', icon: '../public/icon/引水工程水质站.png', alt: '水质站图标', label: '水质站', data: WaterQuality },
+  { name: 'Video', icon: '../public/icon/地质灾害预警.png', alt: '地质站图标', label: '地质站', data: Video },
+  { name: 'GeologicalDisaster', icon: '../public/icon/泥沙站.png', alt: '泥沙站图标', label: '泥沙站', data: GeologicalDisaster },
+  { name: 'Sediment', icon: '../public/icon/取水口.png', alt: '取水口图标', label: '取水口', data: Sediment }
+];
 function toggleList(type: string) {
   if (type === 'layer') {
     showLayerList.value = !showLayerList.value
@@ -161,10 +214,9 @@ function toggleList(type: string) {
   }
 }
 function toggleLayer(layerName: string) {
-  console.log('toggleLayer', layerName)
-  if (pointLayer) {
-    map.removeLayer(pointLayer)
-  }
+  map.removeLayer(graphicLayer)
+  addPointLayer(layerName)
+  showLayerList.value = false
 }
 
 // 尖扎县反选遮罩
@@ -275,27 +327,30 @@ function addDemoGeoJsonLayer() {
 }
 
 // 添加点图层
-function addPointLayer(pointLayer: mars3d.layer.GeoJsonLayer) {
-  const graphicLayer = new mars3d.layer.GeoJsonLayer({
-    name: "合肥市",
-    data: pointLayer,
+function addPointLayer(layerName: string) {
+  console.log(`Adding layer: ${layerName}`); // 调试日志
+  const layer = layers.find(l => l.name === layerName);
+  if (!layer) {
+    console.error(`Layer ${layerName} not found`);
+    return;
+  }
+
+  graphicLayer = new mars3d.layer.GeoJsonLayer({
+    name: layer.label,
+    data: layer.data,
     symbol: {
-      type: "point",
+      type: "billboard",
       styleOptions: {
-        color: "#ff0000",
-        opacity: 0.9,
-        pixelSize: 10,
-        outline: true,
-        outlineColor: "#ffffff",
-        outlineWidth: 2,
+        image: layer.icon, // 使用图层对应的图标
+        scale: 0.1,
         clampToGround: true
       }
     },
     popup: "{name}",
-    "tooltip": "{name}",
+    tooltip: "{name}",
     // flyTo: true,
-  })
-  map.addLayer(graphicLayer)
+  });
+  map.addLayer(graphicLayer);
 }
 </script>
 
