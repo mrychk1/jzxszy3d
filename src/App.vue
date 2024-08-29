@@ -94,9 +94,9 @@ function updateSelect(drawGraphic: any) {
     const isInArea = drawGraphic.isInPoly(position)
     if (isInArea) {
       // 改变原图层的图标
-      // graphic.setStyle({
-      //   image: "../public/icon/选中.png",
-      // })
+      graphic.setStyle({
+        image: "../public/icon/选中.png",
+      })
       selectGraphic.push(graphic)
     }
   })
