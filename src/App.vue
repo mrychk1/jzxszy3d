@@ -73,37 +73,22 @@ async function drawRectangle() {
 }
 
 // 在范围内的改变图标为红色
-// 创建一个新的图层
-let newLayer = new mars3d.layer.GraphicLayer({
-  name: "selectLayer",
-  symbol: {
-    type: "billboard",
-    styleOptions: {
-      image: "../public/icon/选中.png",
-      scale: 0.1,
-      clampToGround: true
-    }
-  },
-  // popup: "{name}",
-  // tooltip: "{name}",
-  // flyTo: true,
-});
+// 保存之前的graphic
+let graphicBeforeImage: any
+// 更新选中的图标
 function updateSelect(drawGraphic: any) {
   graphicLayer.eachGraphic((graphic) => {
+    graphicBeforeImage = graphic.options.style.image
     const position = graphic.positionShow
     const isInArea = drawGraphic.isInPoly(position)
     if (isInArea) {
       // 改变原图层的图标
-      // graphic.setStyle({
-      //   image: "../public/icon/选中.png",
-      // })
+      graphic.setStyle({
+        image: "../public/icon/选中.png",
+      })
       selectGraphic.push(graphic)
     }
   })
-
-  // 将新的图层添加到地图中
-  map.addLayer(newLayer);
-
   // 打印选中的图标
   console.log("selectGraphic", selectGraphic)
 }
@@ -115,6 +100,7 @@ function removeAllSelect() {
   for (let i = 0; i < selectGraphic.length; i++) {
     const graphic = selectGraphic[i]
     graphic.setStyle({
+      image: graphicBeforeImage,
     })
   }
   selectGraphic = []
