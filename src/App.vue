@@ -1,12 +1,12 @@
 <template>
   <div class="container">
     <div class="button-container">
-      <el-button @click="toggleList('layer')">
+      <div @click="toggleList('layer')">
         <img src="../public/icon/图层.png" alt="图层" />
-      </el-button>
-      <el-button @click="toggleList('measure')">
+      </div>
+      <div @click="toggleList('measure')">
         <img src="../public/icon/距离量测.png" alt="距离量测" />
-      </el-button>
+      </div>
     </div>
     <transition name="slide-fade">
       <div v-if="showLayerList" class="list-container">
@@ -47,13 +47,28 @@
       </div>
     </transition>
     <div id="map" class="map-container"> </div>
-    <!-- 选中数据的表格信息 -->
   </div>
+  <!-- 选中数据的表格信息 -->
+  <el-table :data="selectList" v-if="selectList.length" style="position: absolute;left:0;width: 30%;">
+    <el-table-column prop="name" label="名称"></el-table-column>
+    <el-table-column prop="elevation" label="海拔"></el-table-column>
+    <el-table-column prop="description" label="描述"></el-table-column>
+    <el-table-column prop="category" label="类别"></el-table-column>
+    <el-table-column label="操作">
+      <template #default="scope">
+        <el-button size="small" @click="locate(scope.row)">
+          定位
+        </el-button>
+      </template>
+    </el-table-column>
+  </el-table>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import * as mars3d from 'mars3d'
+
+// 
 // import proj4 from 'proj4'; // Import the proj4 library
 // import * as Cesium from 'cesium'; // Import the Cesium module
 let map: mars3d.Map
@@ -229,7 +244,7 @@ function removeAll() {
 // 尖扎县边界墙
 function addDemoGeoJsonLayer() {
   const graphicLayer = new mars3d.layer.GeoJsonLayer({
-    name: "合肥市",
+    name: "尖扎县",
     url: "http://localhost:8080/geoserver/jzx/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=jzx%3Axzqfw_dis_data&maxFeatures=50&outputFormat=application%2Fjson",
     symbol: {
       type: "wall",
@@ -304,22 +319,47 @@ async function drawRectangle() {
 // 在范围内的改变图标为选中图标
 // 保存之前的graphic的图标
 let graphicBeforeImage: any
+// 选中的属性数据
+// let selectList: any[] = []
+let selectList = ref([] as { name: any; elevation: any; description: any; category: any; }[]) // 选中的属性数据
 // 更新选中的图标
 function updateSelect(drawGraphic: any) {
   graphicLayer.eachGraphic((graphic) => {
     graphicBeforeImage = graphic.options.style.image
     const position = graphic.positionShow
     const isInArea = drawGraphic.isInPoly(position)
-    if (isInArea) {
+    if (isInArea && graphic) {
       // 改变原图层的图标
       graphic.setStyle({
         image: "../public/icon/选中.png",
       })
       selectGraphic.push(graphic)
+      selectList.value.push({
+        name: graphic.options.attr.name,
+        elevation: graphic.options.attr.elevation,
+        description: graphic.options.attr.description,
+        category: graphic.options.attr.category,
+        // position: graphic.options.position
+      })
     }
   })
   // 打印选中的图标
   console.log("selectGraphic", selectGraphic)
+  console.log("selectList", selectList)
+}
+
+// 定位
+function locate(row: any) {
+  console.log("row", row.name)
+  const graphic = selectGraphic.find((g) => g.options.attr.name === row.name)
+  console.log("graphic", graphic) 
+  if (graphic) {
+    map.flyToGraphic(graphic, {
+      duration: 2,//飞行时间
+      scale: 0.2,//缩放比例
+      minHeight: 5000,//最小高度
+    })
+  }
 }
 
 // 清除选中
@@ -333,6 +373,7 @@ function removeAllSelect() {
     })
   }
   selectGraphic = []
+  selectList.value = []
 }
 </script>
 
@@ -364,6 +405,9 @@ function removeAllSelect() {
       height: 100%;
       object-fit: contain;
     }
+
+
+
 
   }
 
