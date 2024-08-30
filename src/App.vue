@@ -358,6 +358,13 @@ function locate(row: any) {
       duration: 2,//飞行时间
       scale: 0.2,//缩放比例
       minHeight: 5000,//最小高度
+      complete: function () {
+        //定位完成后的回调
+        // 打开popup
+        graphic.openPopup()
+        // 设置清除选中图层
+        removeAllSelect()
+      }
     })
   }
 }
@@ -375,6 +382,9 @@ function removeAllSelect() {
   selectGraphic = []
   selectList.value = []
 }
+
+// 搜索查询
+
 </script>
 
 
