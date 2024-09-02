@@ -139,17 +139,18 @@ import Sediment from '../public/data/Sediment.json'
 
 // 图层控制按钮
 import { ref } from 'vue'
+import { ca } from 'element-plus/es/locales.mjs';
 let graphicLayer: mars3d.layer.GeoJsonLayer
 const showLayerList = ref(false)
 const showMeasureList = ref(false)
 const layers = [
-  { name: 'Rainfall', icon1: '../public/icon/雨量站.png',icon2:"../public/icon/警报.png", alt: '雨量站图标', label: '雨量站', data: Rainfall },
-  { name: 'WaterLevel', icon1: '../public/icon/水位站.png',icon2:"../public/icon/警报.png", alt: '水位站图标', label: '水位站', data: WaterLevel },
-  { name: 'FlowRate', icon1: '../public/icon/流量站.png',icon2:"../public/icon/警报.png", alt: '流量站图标', label: '流量站', data: FlowRate },
-  { name: 'WaterQuality', icon1: '../public/icon/引水工程水质站.png', icon2:"../public/icon/警报.png",alt: '水质站图标', label: '水质站', data: WaterQuality },
-  { name: 'Video', icon1: '../public/icon/地质灾害预警.png', icon2:"../public/icon/警报.png",alt: '地质站图标', label: '地质站', data: Video },
-  { name: 'GeologicalDisaster', icon1: '../public/icon/泥沙站.png', icon2:"../public/icon/警报.png",alt: '泥沙站图标', label: '泥沙站', data: GeologicalDisaster },
-  { name: 'Sediment', icon1: '../public/icon/取水口.png', icon2:"../public/icon/警报.png",alt: '取水口图标', label: '取水口', data: Sediment }
+  { name: 'Rainfall', icon1: '../public/icon/雨量站.png', icon2: "../public/icon/警报.png", alt: '雨量站图标', label: '雨量站', data: Rainfall },
+  { name: 'WaterLevel', icon1: '../public/icon/水位站.png', icon2: "../public/icon/警报.png", alt: '水位站图标', label: '水位站', data: WaterLevel },
+  { name: 'FlowRate', icon1: '../public/icon/流量站.png', icon2: "../public/icon/警报.png", alt: '流量站图标', label: '流量站', data: FlowRate },
+  { name: 'WaterQuality', icon1: '../public/icon/引水工程水质站.png', icon2: "../public/icon/警报.png", alt: '水质站图标', label: '水质站', data: WaterQuality },
+  { name: 'Video', icon1: '../public/icon/地质灾害预警.png', icon2: "../public/icon/警报.png", alt: '地质站图标', label: '地质站', data: Video },
+  { name: 'GeologicalDisaster', icon1: '../public/icon/泥沙站.png', icon2: "../public/icon/警报.png", alt: '泥沙站图标', label: '泥沙站', data: GeologicalDisaster },
+  { name: 'Sediment', icon1: '../public/icon/取水口.png', icon2: "../public/icon/警报.png", alt: '取水口图标', label: '取水口', data: Sediment }
 ];
 function toggleList(type: string) {
   if (type === 'layer') {
@@ -334,14 +335,23 @@ async function drawRectangle() {
 
 // 在范围内的改变图标为选中图标
 // 保存之前的graphic的图标
-let graphicBeforeImage: any
+let imageicon1: any
+let imageicon2: any
+
+// let selectsymbol: any
 // 选中的属性数据
 // let selectList: any[] = []
-let selectList = ref([] as { name: any; elevation: any; description: any; category: any; }[]) // 选中的属性数据
+let selectList = ref([] as { name: any; elevation: any; description: any; category: any; image: any }[]) // 选中的属性数据
 // 更新选中的图标
 function updateSelect(drawGraphic: any) {
+  // selectsymbol = graphicLayer.options.symbol
   graphicLayer.eachGraphic((graphic) => {
-    graphicBeforeImage = graphic.options.style.image
+    // console.log("graphic", graphic)
+    if(graphic.options.attr.elevation < 1600) {
+      imageicon1 = graphic.options.style.image
+    } else {
+      imageicon2 = graphic.options.style.image
+    }
     const position = graphic.positionShow
     const isInArea = drawGraphic.isInPoly(position)
     if (isInArea && graphic) {
@@ -355,7 +365,7 @@ function updateSelect(drawGraphic: any) {
         elevation: graphic.options.attr.elevation,
         description: graphic.options.attr.description,
         category: graphic.options.attr.category,
-        // position: graphic.options.position
+        image: graphic.options.style.image
       })
     }
   })
@@ -392,13 +402,21 @@ function locate(row: any) {
 // 清除选中
 function removeAllSelect() {
   map.graphicLayer.clear()
-
+  // console.log("selectGraphic", selectGraphic)
   for (let i = 0; i < selectGraphic.length; i++) {
     const graphic = selectGraphic[i]
-    graphic.setStyle({
-      image: graphicBeforeImage,
-    })
+    // graphic.setStyle(selectsymbol)
+    if (graphic.options.attr.elevation < 1600) {
+      graphic.setStyle({
+        image: imageicon1,
+      })
+    } else {
+      graphic.setStyle({
+        image: imageicon2,
+      })
+    }
   }
+
   selectGraphic = []
   selectList.value = []
 }
