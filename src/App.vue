@@ -12,7 +12,7 @@
       <div v-if="showLayerList" class="list-container">
         <ul>
           <li v-for="layer in layers" :key="layer.name" @click="toggleLayer(layer.name)">
-            <img :src="layer.icon" :alt="layer.alt" class="icon" />
+            <img :src="layer.icon1" :alt="layer.alt" class="icon" />
             {{ layer.label }}
           </li>
         </ul>
@@ -143,13 +143,13 @@ let graphicLayer: mars3d.layer.GeoJsonLayer
 const showLayerList = ref(false)
 const showMeasureList = ref(false)
 const layers = [
-  { name: 'Rainfall', icon: '../public/icon/雨量站.png', alt: '雨量站图标', label: '雨量站', data: Rainfall },
-  { name: 'WaterLevel', icon: '../public/icon/水位站.png', alt: '水位站图标', label: '水位站', data: WaterLevel },
-  { name: 'FlowRate', icon: '../public/icon/流量站.png', alt: '流量站图标', label: '流量站', data: FlowRate },
-  { name: 'WaterQuality', icon: '../public/icon/引水工程水质站.png', alt: '水质站图标', label: '水质站', data: WaterQuality },
-  { name: 'Video', icon: '../public/icon/地质灾害预警.png', alt: '地质站图标', label: '地质站', data: Video },
-  { name: 'GeologicalDisaster', icon: '../public/icon/泥沙站.png', alt: '泥沙站图标', label: '泥沙站', data: GeologicalDisaster },
-  { name: 'Sediment', icon: '../public/icon/取水口.png', alt: '取水口图标', label: '取水口', data: Sediment }
+  { name: 'Rainfall', icon1: '../public/icon/雨量站.png',icon2:"../public/icon/警报.png", alt: '雨量站图标', label: '雨量站', data: Rainfall },
+  { name: 'WaterLevel', icon1: '../public/icon/水位站.png',icon2:"../public/icon/警报.png", alt: '水位站图标', label: '水位站', data: WaterLevel },
+  { name: 'FlowRate', icon1: '../public/icon/流量站.png',icon2:"../public/icon/警报.png", alt: '流量站图标', label: '流量站', data: FlowRate },
+  { name: 'WaterQuality', icon1: '../public/icon/引水工程水质站.png', icon2:"../public/icon/警报.png",alt: '水质站图标', label: '水质站', data: WaterQuality },
+  { name: 'Video', icon1: '../public/icon/地质灾害预警.png', icon2:"../public/icon/警报.png",alt: '地质站图标', label: '地质站', data: Video },
+  { name: 'GeologicalDisaster', icon1: '../public/icon/泥沙站.png', icon2:"../public/icon/警报.png",alt: '泥沙站图标', label: '泥沙站', data: GeologicalDisaster },
+  { name: 'Sediment', icon1: '../public/icon/取水口.png', icon2:"../public/icon/警报.png",alt: '取水口图标', label: '取水口', data: Sediment }
 ];
 function toggleList(type: string) {
   if (type === 'layer') {
@@ -275,22 +275,38 @@ function addDemoGeoJsonLayer() {
 
 // 添加点图层
 function addPointLayer(layerName: string) {
-  console.log(`Adding layer: ${layerName}`); // 调试日志
+  // console.log(`Adding layer: ${layerName}`); // 调试日志
   const layer = layers.find(l => l.name === layerName);
   if (!layer) {
     console.error(`Layer ${layerName} not found`);
     return;
   }
-
   graphicLayer = new mars3d.layer.GeoJsonLayer({
     name: layer.label,
     data: layer.data,
     symbol: {
       type: "billboard",
       styleOptions: {
-        image: layer.icon, // 使用图层对应的图标
+        // image: layer.icon,
         scale: 0.1,
         clampToGround: true
+      },
+      styleField: "elevation",  //根据属性字段设置样式
+      callback: function (feature) {
+        const elevation = feature.elevation;
+        if (elevation < 1600) {
+          return {
+            image: layer.icon1,
+            scale: 0.1,
+            clampToGround: true
+          };
+        } else {
+          return {
+            image: layer.icon2,
+            scale: 0.1,
+            clampToGround: true
+          };
+        }
       }
     },
     popup: "{name}",
@@ -344,15 +360,15 @@ function updateSelect(drawGraphic: any) {
     }
   })
   // 打印选中的图标
-  console.log("selectGraphic", selectGraphic)
-  console.log("selectList", selectList)
+  // console.log("selectGraphic", selectGraphic)
+  // console.log("selectList", selectList)
 }
 
 // 定位
 function locate(row: any) {
-  console.log("row", row.name)
+  // console.log("row", row.name)
   const graphic = selectGraphic.find((g) => g.options.attr.name === row.name)
-  console.log("graphic", graphic) 
+  // console.log("graphic", graphic) 
   if (graphic) {
     map.flyToGraphic(graphic, {
       duration: 2,//飞行时间
@@ -362,8 +378,12 @@ function locate(row: any) {
         //定位完成后的回调
         // 打开popup
         graphic.openPopup()
-        // 设置清除选中图层
+        // 设置清除选择图层
         removeAllSelect()
+        // 设置选中图标
+        // graphic.setStyle({
+        //   image: "../public/icon/选中.png",
+        // })
       }
     })
   }
